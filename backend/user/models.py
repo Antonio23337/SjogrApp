@@ -2,6 +2,7 @@ import random
 import string
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models, IntegrityError, transaction
+from rest_framework.authtoken.models import Token
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None):
@@ -20,6 +21,10 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, codigo_identificativo=codigo_identificativo)
         user.set_password(password)
         user.save(using=self._db)
+
+        # Generar el token de autenticación para el usuario
+        Token.objects.create(user=user)
+
         return user
 
     def create_superuser(self, email, password=None):

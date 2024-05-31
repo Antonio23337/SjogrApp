@@ -1,11 +1,11 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import get_user_model, authenticate
 from .serializers import UserSerializer
 from django.db import IntegrityError
+from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
@@ -17,7 +17,9 @@ class RegisterView(APIView):
         if serializer.is_valid():
             try:
                 user = serializer.save()
+                token, created = Token.objects.get_or_create(user=user)
                 user_data = serializer.data
+                user_data['token'] = token.key  # Añadir el token al response
                 user_data['codigo_identificativo'] = user.codigo_identificativo  # Añadir el código identificativo al response
                 return Response(user_data, status=status.HTTP_201_CREATED)
             except IntegrityError:
@@ -34,10 +36,9 @@ class LoginView(APIView):
         password = request.data.get('password')
         user = authenticate(email=email, password=password)
         if user is not None:
-            refresh = RefreshToken.for_user(user)
+            token, created = Token.objects.get_or_create(user=user)
             return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
+                'token': token.key,
                 'message': 'Usuario logueado correctamente'
             })
         return Response({"error": "Credenciales inválidas."}, status=status.HTTP_401_UNAUTHORIZED)
