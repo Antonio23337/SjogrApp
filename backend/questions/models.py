@@ -137,6 +137,7 @@ class Poliautoinmunidad(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
     diagnostico_otras_enfermedades_autoinmunes = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')])
     enfermedades_autoinmunes = models.CharField(max_length=50, choices=ENFERMEDADES_AUTOINMUNES_CHOICES, null=True, blank=True)
+    otro_enfermedad = models.CharField(max_length=100, null=True, blank=True)
     anio_diagnostico = models.IntegerField(choices=ANIOS_DIAGNOSTICO_CHOICES, null=True, blank=True)
     medicacion = models.TextField(null=True, blank=True, validators=[validate_not_blank])
 
@@ -147,12 +148,15 @@ class Poliautoinmunidad(models.Model):
         if self.diagnostico_otras_enfermedades_autoinmunes:
             if not self.enfermedades_autoinmunes:
                 raise ValidationError({'enfermedades_autoinmunes': 'Este campo es obligatorio si ha sido diagnosticado con otras enfermedades autoinmunes.'})
+            if self.enfermedades_autoinmunes == 'Otro' and not self.otro_enfermedad:
+                raise ValidationError({'otro_enfermedad': 'Por favor, especifique la otra enfermedad.'})
             if not self.anio_diagnostico:
                 raise ValidationError({'anio_diagnostico': 'Este campo es obligatorio si ha sido diagnosticado con otras enfermedades autoinmunes.'})
             if not self.medicacion:
                 raise ValidationError({'medicacion': 'Este campo es obligatorio si ha sido diagnosticado con otras enfermedades autoinmunes.'})
         else:
             self.enfermedades_autoinmunes = None
+            self.otro_enfermedad = None
             self.anio_diagnostico = None
             self.medicacion = None
 
@@ -398,73 +402,6 @@ class Xerostomia(models.Model):
             if value is None:
                 raise ValidationError({field: ('Este campo es obligatorio.')})
 
-class Lengua(models.Model):
-    OPCIONES = [
-        ('Dorso', 'Dorso'),
-        ('Borde lateral derecho', 'Borde lateral derecho'),
-        ('Borde lateral izquierdo', 'Borde lateral izquierdo'),
-        ('Punta', 'Punta'),
-        ('Vientre', 'Vientre'),
-    ]
-    nombre = models.CharField(max_length=50, choices=OPCIONES)
-
-    def __str__(self):
-        return self.nombre
-
-class MucosaYugal(models.Model):
-    OPCIONES = [
-        ('Derecha', 'Derecha'),
-        ('Izquierda', 'Izquierda'),
-        ('Ambas', 'Ambas'),
-    ]
-    nombre = models.CharField(max_length=50, choices=OPCIONES)
-
-    def __str__(self):
-        return self.nombre
-
-class Labios(models.Model):
-    OPCIONES = [
-        ('Superior cara externa', 'Superior cara externa'),
-        ('Superior cara interna', 'Superior cara interna'),
-        ('Inferior cara externa', 'Inferior cara externa'),
-        ('Inferior cara interna', 'Inferior cara interna'),
-        ('Comisura', 'Comisura'),
-    ]
-    nombre = models.CharField(max_length=50, choices=OPCIONES)
-
-    def __str__(self):
-        return self.nombre
-
-class Encia(models.Model):
-    OPCIONES = [
-        ('Derecha superior', 'Derecha superior'),
-        ('Derecha inferior', 'Derecha inferior'),
-        ('Izquierda superior', 'Izquierda superior'),
-        ('Izquierda inferior', 'Izquierda inferior'),
-    ]
-    nombre = models.CharField(max_length=50, choices=OPCIONES)
-
-    def __str__(self):
-        return self.nombre
-
-class Paladar(models.Model):
-    OPCIONES = [
-        ('Paladar', 'Paladar'),
-    ]
-    nombre = models.CharField(max_length=50, choices=OPCIONES)
-
-    def __str__(self):
-        return self.nombre
-
-class Extraoral(models.Model):
-    OPCIONES = [
-        ('Extraoral', 'Extraoral'),
-    ]
-    nombre = models.CharField(max_length=50, choices=OPCIONES)
-
-    def __str__(self):
-        return self.nombre
-
 class SindromeBocaArdiente(models.Model):
     ESCALA_CHOICES = [
         ('Sin dificultad', 'Sin dificultad'),
@@ -474,37 +411,74 @@ class SindromeBocaArdiente(models.Model):
         ('Incapacitante', 'Incapacitante')
     ]
 
+    LENGUA_CHOICES = [
+        ('Dorso', 'Dorso'),
+        ('Borde lateral derecho', 'Borde lateral derecho'),
+        ('Borde lateral izquierdo', 'Borde lateral izquierdo'),
+        ('Punta', 'Punta'),
+        ('Vientre', 'Vientre'),
+    ]
+
+    MUCOSA_YUGAL_CHOICES = [
+        ('Derecha', 'Derecha'),
+        ('Izquierda', 'Izquierda'),
+        ('Ambas', 'Ambas'),
+    ]
+
+    LABIOS_CHOICES = [
+        ('Superior cara externa', 'Superior cara externa'),
+        ('Superior cara interna', 'Superior cara interna'),
+        ('Inferior cara externa', 'Inferior cara externa'),
+        ('Inferior cara interna', 'Inferior cara interna'),
+        ('Comisura', 'Comisura'),
+    ]
+
+    ENCIA_CHOICES = [
+        ('Derecha superior', 'Derecha superior'),
+        ('Derecha inferior', 'Derecha inferior'),
+        ('Izquierda superior', 'Izquierda superior'),
+        ('Izquierda inferior', 'Izquierda inferior'),
+    ]
+
+    PALADAR_CHOICES = [
+        ('Paladar', 'Paladar'),
+    ]
+
+    EXTRAORAL_CHOICES = [
+        ('Extraoral', 'Extraoral'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
-    tiene_sintomas = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=False, blank=False)
-    sintomas = models.CharField(max_length=255, null=True, blank=True, validators=[validate_not_blank])
+    tiene_sintomas = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=False, blank=False, default=False)
+    sintomas = models.CharField(max_length=255, null=True, blank=True)
     duracion_sintomas = models.CharField(max_length=50, choices=[('< 6 meses', '< 6 meses'), ('> 6 meses', '> 6 meses')], null=True, blank=True)
-    atribucion_sintomas = models.TextField(null=True, blank=True, validators=[validate_not_blank])
+    atribucion_sintomas = models.TextField(null=True, blank=True)
     aparicion_sintomas = models.CharField(max_length=50, choices=[('Desde por la mañana', 'Desde por la mañana'), ('Incrementado en la tarde-noche', 'Incrementado en la tarde-noche'), ('Días libre', 'Días libre')], null=True, blank=True)
     intensidad_sintomatologia = models.IntegerField(choices=[(i, str(i)) for i in range(11)], null=True, blank=True)
-    factor_desencadenante = models.TextField(null=True, blank=True, validators=[validate_not_blank])
-    calidad_vida = models.CharField(max_length=50, choices=[('Sin dificultad', 'Sin dificultad'), ('Leve', 'Leve'), ('Moderada', 'Moderada'), ('Grave', 'Grave'), ('Incapacitante', 'Incapacitante')], null=True, blank=True)
-    alteraciones_gusto = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=False, blank=False)
-    tipo_alteracion_gusto = models.TextField(null=True, blank=True, validators=[validate_not_blank])
+    factor_desencadenante = models.TextField(null=True, blank=True)
+    alteraciones_gusto = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=True, blank=True, default=False)
+    tipo_alteracion_gusto = models.TextField(null=True, blank=True)
     intensidad_alteracion_gusto = models.IntegerField(choices=[(i, str(i)) for i in range(11)], null=True, blank=True)
-    cuerpo_extraño_boca = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=False, blank=False)
-    ulceraciones_boca = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=False, blank=False)
-    intolerancia_protesis = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=False, blank=False)
-    halitosis = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=False, blank=False)
-    comer_beber = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
-    hablar = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
-    higiene_dental = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
-    dormir_relajarse = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
-    mostrar_sonrisa = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
-    estado_emocional = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
-    realizar_trabajo_habitual = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
-    disfrutar_relaciones_sociales = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=False, blank=False)
+    cuerpo_extraño_boca = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=True, blank=True, default=True)
+    ulceraciones_boca = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=True, blank=True, default=True)
+    intolerancia_protesis = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=True, blank=True, default=True)
+    halitosis = models.BooleanField(choices=[(True, 'Sí'), (False, 'No')], null=True, blank=True, default=True)
+    comer_beber = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=True)
+    hablar = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=True)
+    higiene_dental = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=False)
+    dormir_relajarse = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=True)
+    mostrar_sonrisa = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=True)
+    estado_emocional = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=True)
+    realizar_trabajo_habitual = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=True)
+    disfrutar_relaciones_sociales = models.CharField(max_length=20, choices=ESCALA_CHOICES, null=True, blank=True)
 
-    lengua = models.ManyToManyField(Lengua, related_name='lengua')
-    mucosa_yugal = models.ManyToManyField(MucosaYugal, related_name='mucosa_yugal')
-    labios = models.ManyToManyField(Labios, related_name='labios')
-    encia = models.ManyToManyField(Encia, related_name='encia')
-    paladar = models.ManyToManyField(Paladar, related_name='paladar')
-    extraoral = models.ManyToManyField(Extraoral, related_name='extraoral')
+    lengua = models.CharField(max_length=50, choices=LENGUA_CHOICES, null=True, blank=True)
+    mucosa_yugal = models.CharField(max_length=50, choices=MUCOSA_YUGAL_CHOICES, null=True, blank=True)
+    labios = models.CharField(max_length=50, choices=LABIOS_CHOICES, null=True, blank=True)
+    
+    encia = models.CharField(max_length=50, choices=ENCIA_CHOICES, null=True, blank=True)
+    paladar = models.CharField(max_length=50, choices=PALADAR_CHOICES, null=True, blank=True)
+    extraoral = models.CharField(max_length=50, choices=EXTRAORAL_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return f"Síndrome de la boca ardiente de {self.user.codigo_identificativo}"
@@ -550,3 +524,4 @@ class SindromeBocaArdiente(models.Model):
             raise ValidationError({'atribucion_sintomas': 'Este campo es obligatorio si los síntomas son de otro tipo.'})
         elif self.sintomas != 'Otro':
             self.atribucion_sintomas = None
+

@@ -11,7 +11,10 @@ from .serializers import (
     PoliautoinmunidadSerializer, AntecedentesFamiliaresSerializer, 
     AntecedentesMedicosSerializer, AlergiasSerializer, 
     EstadoMenstrualSerializer, HabitosNocivosSerializer, 
-    ESSPRISerializer, XerostomiaSerializer, SindromeBocaArdienteSerializer
+    ESSPRISerializer, XerostomiaSerializer, SindromeBocaArdienteSerializer, CodigoList, DiagnosticoSjogrenList, PoliautoinmunidadList,
+    AntecedentesFamiliaresList, AntecedentesMedicosList, AlergiasList,
+    EstadoMenstrualList, HabitosNocivosList, ESSPRIList, XerostomiaList,
+    SindromeBocaArdienteList
 )
 from .models import (
     DatosSocioDemograficos, DiagnosticoSjogren, Poliautoinmunidad,
@@ -118,7 +121,7 @@ class DiagnosticoSjogrenCreateView(BaseCreateView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class PoliautoinmunidadCreateView(BaseCreateView):
+class PoliautoinmunidadCreateView(APIView):
 
     def post(self, request):
         data = request.data
@@ -130,11 +133,14 @@ class PoliautoinmunidadCreateView(BaseCreateView):
 
         if not diagnostico_otras_enfermedades_autoinmunes:
             data['enfermedades_autoinmunes'] = None
+            data['otro_enfermedad'] = None
             data['anio_diagnostico'] = None
             data['medicacion'] = None
         else:
             if not data.get('enfermedades_autoinmunes') or data.get('enfermedades_autoinmunes').strip() == '':
                 return Response({"enfermedades_autoinmunes": "Este campo es obligatorio si ha sido diagnosticado con otras enfermedades autoinmunes y no puede estar vacío o contener solo espacios en blanco."}, status=status.HTTP_400_BAD_REQUEST)
+            if data.get('enfermedades_autoinmunes') == 'Otro' and (not data.get('otro_enfermedad') or data.get('otro_enfermedad').strip() == ''):
+                return Response({"otro_enfermedad": "Por favor, especifique la otra enfermedad."}, status=status.HTTP_400_BAD_REQUEST)
             if not data.get('anio_diagnostico'):
                 return Response({"anio_diagnostico": "Este campo es obligatorio si ha sido diagnosticado con otras enfermedades autoinmunes."}, status=status.HTTP_400_BAD_REQUEST)
             if not data.get('medicacion') or data.get('medicacion').strip() == '':
@@ -246,8 +252,17 @@ class EstadoMenstrualCreateView(BaseCreateView):
         data = request.data
         data['user'] = request.user.id
 
+        # Convertir a enteros
+        try:
+            edad_primera_menstruacion = int(data.get('edad_primera_menstruacion'))
+            if 'edad_ultima_menstruacion' in data and data.get('edad_ultima_menstruacion'):
+                data['edad_ultima_menstruacion'] = int(data.get('edad_ultima_menstruacion'))
+            else:
+                data['edad_ultima_menstruacion'] = None
+        except ValueError:
+            return Response({"error": "Las edades deben ser números enteros."}, status=status.HTTP_400_BAD_REQUEST)
+
         estado_menstrual = data.get('estado_menstrual')
-        edad_primera_menstruacion = data.get('edad_primera_menstruacion')
 
         if edad_primera_menstruacion is None:
             return Response({"edad_primera_menstruacion": "Este campo es obligatorio."}, status=status.HTTP_400_BAD_REQUEST)
@@ -307,6 +322,13 @@ class HabitosNocivosCreateView(BaseCreateView):
                 return Response({"cigarrillos_por_dia": "Este campo es obligatorio si actualmente fumas."}, status=status.HTTP_400_BAD_REQUEST)
             if edad_inicio_fumar is None:
                 return Response({"edad_inicio_fumar": "Este campo es obligatorio si actualmente fumas."}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                cigarrillos_por_dia = int(cigarrillos_por_dia)
+                edad_inicio_fumar = int(edad_inicio_fumar)
+            except ValueError:
+                return Response({"error": "Los valores de cigarrillos por día y edad de inicio de fumar deben ser números enteros."}, status=status.HTTP_400_BAD_REQUEST)
+
             if not (0 <= cigarrillos_por_dia <= 200):
                 return Response({"cigarrillos_por_dia": "El valor debe estar entre 0 y 200."}, status=status.HTTP_400_BAD_REQUEST)
             if not (0 <= edad_inicio_fumar <= 120):
@@ -329,10 +351,14 @@ class HabitosNocivosCreateView(BaseCreateView):
 
             if cuando_comenzaste.strip() == '':
                 return Response({"cuando_comenzaste": "Este campo no puede estar en blanco."}, status=status.HTTP_400_BAD_REQUEST)
-            if cigarrillos_por_dia_antes.strip() == '':
-                return Response({"cigarrillos_por_dia_antes": "Este campo no puede estar en blanco."}, status=status.HTTP_400_BAD_REQUEST)
             if cuando_dejaste.strip() == '':
                 return Response({"cuando_dejaste": "Este campo no puede estar en blanco."}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                cigarrillos_por_dia_antes = int(cigarrillos_por_dia_antes)
+            except ValueError:
+                return Response({"error": "Los valores de cigarrillos por día antes deben ser números enteros."}, status=status.HTTP_400_BAD_REQUEST)
+
             if not (0 <= cigarrillos_por_dia_antes <= 200):
                 return Response({"cigarrillos_por_dia_antes": "El valor debe estar entre 0 y 200."}, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -344,17 +370,23 @@ class HabitosNocivosCreateView(BaseCreateView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
 class ESSPRICreateView(BaseCreateView):
-
+    
     def post(self, request):
         data = request.data
         data['user'] = request.user.id
 
         required_fields = ['severidad_sequedad', 'severidad_fatiga', 'severidad_dolor']
+        
         self.validate_required_fields(data, required_fields)
-        self.validate_not_blank(data, required_fields)
+        self.validate_not_blank(data, [field for field in required_fields if isinstance(data.get(field), str)])
 
         serializer = ESSPRISerializer(data=data)
         if serializer.is_valid():
@@ -382,20 +414,45 @@ class XerostomiaCreateView(BaseCreateView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class SindromeBocaArdienteCreateView(BaseCreateView):
 
+class SindromeBocaArdienteCreateView(BaseCreateView):
     def post(self, request):
         data = request.data
         data['user'] = request.user.id
 
-        text_fields = ['sintomas', 'atribucion_sintomas', 'factor_desencadenante', 'tipo_alteracion_gusto']
-        self.validate_not_blank(data, text_fields)
+
+        # Required fields if 'tiene_sintomas' is True
+        if data.get('tiene_sintomas') == True:
+            required_fields = [
+                'sintomas', 'duracion_sintomas', 'atribucion_sintomas', 
+                'aparicion_sintomas', 'intensidad_sintomatologia', 
+                'factor_desencadenante', 'comer_beber', 
+                'hablar', 'higiene_dental', 'dormir_relajarse', 'mostrar_sonrisa', 
+                'estado_emocional', 'realizar_trabajo_habitual', 'disfrutar_relaciones_sociales'
+            ]
+            for field in required_fields:
+                if not data.get(field):
+                    print(f"Campo faltante: {field}")
+                    return Response({field: f"Este campo es obligatorio si tiene síntomas es 'Sí'."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Required fields if 'alteraciones_gusto' is True
+        if data.get('alteraciones_gusto') == True:
+            required_fields = ['tipo_alteracion_gusto', 'intensidad_alteracion_gusto']
+            for field in required_fields:
+                if not data.get(field):
+                    print(f"Campo faltante: {field}")
+                    return Response({field: f"Este campo es obligatorio si alteraciones en el gusto es 'Sí'."}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = SindromeBocaArdienteSerializer(data=data)
         if serializer.is_valid():
+            print("Datos validados correctamente")
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(f"Errores de validación: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 class DatosSocioDemograficosListView(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -403,7 +460,7 @@ class DatosSocioDemograficosListView(APIView):
 
     def get(self, request):
         datos = DatosSocioDemograficos.objects.all()
-        serializer = DatosSocioDemograficosSerializer(datos, many=True)
+        serializer = CodigoList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class DatosSocioDemograficosDetailView(APIView):
@@ -425,7 +482,7 @@ class DiagnosticoSjogrenListView(APIView):
 
     def get(self, request):
         datos = DiagnosticoSjogren.objects.all()
-        serializer = DiagnosticoSjogrenSerializer(datos, many=True)
+        serializer = DiagnosticoSjogrenList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class DiagnosticoSjogrenDetailView(APIView):
@@ -447,7 +504,7 @@ class PoliautoinmunidadListView(APIView):
 
     def get(self, request):
         datos = Poliautoinmunidad.objects.all()
-        serializer = PoliautoinmunidadSerializer(datos, many=True)
+        serializer = PoliautoinmunidadList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class PoliautoinmunidadDetailView(APIView):
@@ -469,7 +526,7 @@ class AntecedentesFamiliaresListView(APIView):
 
     def get(self, request):
         datos = AntecedentesFamiliares.objects.all()
-        serializer = AntecedentesFamiliaresSerializer(datos, many=True)
+        serializer = AntecedentesFamiliaresList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AntecedentesFamiliaresDetailView(APIView):
@@ -491,7 +548,7 @@ class AntecedentesMedicosListView(APIView):
 
     def get(self, request):
         datos = AntecedentesMedicos.objects.all()
-        serializer = AntecedentesMedicosSerializer(datos, many=True)
+        serializer = AntecedentesMedicosList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AntecedentesMedicosDetailView(APIView):
@@ -513,7 +570,7 @@ class AlergiasListView(APIView):
 
     def get(self, request):
         datos = Alergias.objects.all()
-        serializer = AlergiasSerializer(datos, many=True)
+        serializer = AlergiasList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AlergiasDetailView(APIView):
@@ -535,7 +592,7 @@ class EstadoMenstrualListView(APIView):
 
     def get(self, request):
         datos = EstadoMenstrual.objects.all()
-        serializer = EstadoMenstrualSerializer(datos, many=True)
+        serializer = EstadoMenstrualList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class EstadoMenstrualDetailView(APIView):
@@ -557,7 +614,7 @@ class HabitosNocivosListView(APIView):
 
     def get(self, request):
         datos = HabitosNocivos.objects.all()
-        serializer = HabitosNocivosSerializer(datos, many=True)
+        serializer = HabitosNocivosList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class HabitosNocivosDetailView(APIView):
@@ -579,7 +636,7 @@ class ESSPRIListView(APIView):
 
     def get(self, request):
         datos = ESSPRI.objects.all()
-        serializer = ESSPRISerializer(datos, many=True)
+        serializer = ESSPRIList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ESSPRIDetailView(APIView):
@@ -601,7 +658,7 @@ class XerostomiaListView(APIView):
 
     def get(self, request):
         datos = Xerostomia.objects.all()
-        serializer = XerostomiaSerializer(datos, many=True)
+        serializer = XerostomiaList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class XerostomiaDetailView(APIView):
@@ -623,7 +680,7 @@ class SindromeBocaArdienteListView(APIView):
 
     def get(self, request):
         datos = SindromeBocaArdiente.objects.all()
-        serializer = SindromeBocaArdienteSerializer(datos, many=True)
+        serializer = SindromeBocaArdienteList(datos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class SindromeBocaArdienteDetailView(APIView):
@@ -638,3 +695,28 @@ class SindromeBocaArdienteDetailView(APIView):
 
         serializer = SindromeBocaArdienteSerializer(dato)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+class CheckFormSubmissionView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        user = request.user
+        forms_status = {
+            'socio_demografico': DatosSocioDemograficos.objects.filter(user=user).exists(),
+            'diagnostico_sjogren': DiagnosticoSjogren.objects.filter(user=user).exists(),
+            'poliautoinmunidad': Poliautoinmunidad.objects.filter(user=user).exists(),
+            'antecedentes_familiares': AntecedentesFamiliares.objects.filter(user=user).exists(),
+            'antecedentes_medicos': AntecedentesMedicos.objects.filter(user=user).exists(),
+            'alergias': Alergias.objects.filter(user=user).exists(),
+            'estado_menstrual': EstadoMenstrual.objects.filter(user=user).exists(),
+            'habitos_nocivos': HabitosNocivos.objects.filter(user=user).exists(),
+            'esspri': ESSPRI.objects.filter(user=user).exists(),
+            'xerostomia': Xerostomia.objects.filter(user=user).exists(),
+            'sindrome_boca_ardiente': SindromeBocaArdiente.objects.filter(user=user).exists(),
+        }
+
+        return Response(forms_status, status=status.HTTP_200_OK)
+    
+    

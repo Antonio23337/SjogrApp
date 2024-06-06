@@ -2,8 +2,7 @@ from rest_framework import serializers
 from .models import (
     DatosSocioDemograficos, DiagnosticoSjogren, Poliautoinmunidad,
     AntecedentesFamiliares, AntecedentesMedicos, Alergias, EstadoMenstrual,
-    HabitosNocivos, ESSPRI, Xerostomia, SindromeBocaArdiente,
-    Lengua, MucosaYugal, Labios, Encia, Paladar, Extraoral
+    HabitosNocivos, ESSPRI, Xerostomia, SindromeBocaArdiente
 )
 
 class DatosSocioDemograficosSerializer(serializers.ModelSerializer):
@@ -130,10 +129,7 @@ class EstadoMenstrualSerializer(serializers.ModelSerializer):
 class HabitosNocivosSerializer(serializers.ModelSerializer):
     class Meta:
         model = HabitosNocivos
-        fields = [
-            'user', 'actualmente_fumas', 'cigarrillos_por_dia', 'edad_inicio_fumar',
-            'has_fumado_antes', 'cuando_comenzaste', 'cigarrillos_por_dia_antes', 'cuando_dejaste'
-        ]
+        fields = "__all__"
 
 
 class ESSPRISerializer(serializers.ModelSerializer):
@@ -152,82 +148,118 @@ class XerostomiaSerializer(serializers.ModelSerializer):
         ]
 
 
-class LenguaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Lengua
-        fields = ['id', 'nombre']
-
-
-class MucosaYugalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MucosaYugal
-        fields = ['id', 'nombre']
-
-
-class LabiosSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Labios
-        fields = ['id', 'nombre']
-
-
-class EnciaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Encia
-        fields = ['id', 'nombre']
-
-
-class PaladarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Paladar
-        fields = ['id', 'nombre']
-
-
-class ExtraoralSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Extraoral
-        fields = ['id', 'nombre']
-
 
 class SindromeBocaArdienteSerializer(serializers.ModelSerializer):
-    lengua = serializers.SlugRelatedField(queryset=Lengua.objects.all(), many=True, slug_field='nombre')
-    mucosa_yugal = serializers.SlugRelatedField(queryset=MucosaYugal.objects.all(), many=True, slug_field='nombre')
-    labios = serializers.SlugRelatedField(queryset=Labios.objects.all(), many=True, slug_field='nombre')
-    encia = serializers.SlugRelatedField(queryset=Encia.objects.all(), many=True, slug_field='nombre')
-    paladar = serializers.SlugRelatedField(queryset=Paladar.objects.all(), many=True, slug_field='nombre')
-    extraoral = serializers.SlugRelatedField(queryset=Extraoral.objects.all(), many=True, slug_field='nombre')
-
     class Meta:
         model = SindromeBocaArdiente
-        fields = [
-            'user', 'tiene_sintomas', 'sintomas', 'duracion_sintomas', 'atribucion_sintomas',
-            'aparicion_sintomas', 'intensidad_sintomatologia', 'factor_desencadenante', 'calidad_vida',
-            'alteraciones_gusto', 'tipo_alteracion_gusto', 'intensidad_alteracion_gusto', 'cuerpo_extraño_boca',
-            'ulceraciones_boca', 'intolerancia_protesis', 'halitosis', 'comer_beber', 'hablar', 'higiene_dental',
-            'dormir_relajarse', 'mostrar_sonrisa', 'estado_emocional', 'realizar_trabajo_habitual',
-            'disfrutar_relaciones_sociales', 'lengua', 'mucosa_yugal', 'labios', 'encia', 'paladar', 'extraoral'
-        ]
+        fields = '__all__'
 
     def validate(self, data):
-        for field in ['sintomas', 'atribucion_sintomas', 'factor_desencadenante', 'tipo_alteracion_gusto']:
-            if field in data and data[field].strip() == '':
-                raise serializers.ValidationError({field: "Este campo no puede ser solo espacios en blanco."})
-
-        if data['tiene_sintomas']:
+        if data.get('tiene_sintomas'):
             required_fields = [
-                'sintomas', 'duracion_sintomas', 'atribucion_sintomas', 'aparicion_sintomas',
-                'intensidad_sintomatologia', 'factor_desencadenante', 'calidad_vida'
+                'sintomas', 'duracion_sintomas', 'atribucion_sintomas', 'aparicion_sintomas', 'intensidad_sintomatologia', 'factor_desencadenante',
+                'comer_beber', 'hablar', 'higiene_dental', 'dormir_relajarse', 'mostrar_sonrisa', 'estado_emocional', 'realizar_trabajo_habitual', 'disfrutar_relaciones_sociales'
             ]
             for field in required_fields:
                 if not data.get(field):
                     raise serializers.ValidationError({field: f"Este campo es obligatorio si tiene síntomas."})
-
-        if data['alteraciones_gusto']:
-            if not data.get('tipo_alteracion_gusto'):
-                raise serializers.ValidationError({'tipo_alteracion_gusto': "Este campo es obligatorio si tiene alteraciones en el gusto."})
-            if not data.get('intensidad_alteracion_gusto'):
-                raise serializers.ValidationError({'intensidad_alteracion_gusto': "Este campo es obligatorio si tiene alteraciones en el gusto."})
-        else:
-            data['tipo_alteracion_gusto'] = None
-            data['intensidad_alteracion_gusto'] = None
-
+        if data.get('alteraciones_gusto'):
+            required_fields = ['tipo_alteracion_gusto', 'intensidad_alteracion_gusto']
+            for field in required_fields:
+                if not data.get(field):
+                    raise serializers.ValidationError({field: f"Este campo es obligatorio si tiene alteraciones en el gusto."})
         return data
+
+
+
+    
+    
+class CodigoList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = DatosSocioDemograficos
+        fields = ['id', 'codigo_identificativo']
+        
+        
+class DiagnosticoSjogrenList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = DiagnosticoSjogren
+        fields = ['id', 'codigo_identificativo']
+
+
+class PoliautoinmunidadList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = Poliautoinmunidad
+        fields = ['id', 'codigo_identificativo']
+
+
+class AntecedentesFamiliaresList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = AntecedentesFamiliares
+        fields = ['id', 'codigo_identificativo']
+
+
+class AntecedentesMedicosList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = AntecedentesMedicos
+        fields = ['id', 'codigo_identificativo']
+
+
+class AlergiasList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = Alergias
+        fields = ['id', 'codigo_identificativo']
+
+
+class EstadoMenstrualList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = EstadoMenstrual
+        fields = ['id', 'codigo_identificativo']
+
+
+class HabitosNocivosList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = HabitosNocivos
+        fields = ['id', 'codigo_identificativo']
+
+
+class ESSPRIList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = ESSPRI
+        fields = ['id', 'codigo_identificativo']
+
+
+class XerostomiaList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = Xerostomia
+        fields = ['id', 'codigo_identificativo']
+
+
+class SindromeBocaArdienteList(serializers.ModelSerializer):
+    codigo_identificativo = serializers.CharField(source='user.codigo_identificativo')
+
+    class Meta:
+        model = SindromeBocaArdiente
+        fields = ['id', 'codigo_identificativo']
+        
+
+

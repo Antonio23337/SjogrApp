@@ -2,8 +2,7 @@ from django.contrib import admin
 from .models import (
     DatosSocioDemograficos, DiagnosticoSjogren, Poliautoinmunidad,
     AntecedentesFamiliares, AntecedentesMedicos, Alergias, EstadoMenstrual,
-    HabitosNocivos, ESSPRI, Xerostomia, SindromeBocaArdiente,
-    Lengua, MucosaYugal, Labios, Encia, Paladar, Extraoral
+    HabitosNocivos, ESSPRI, Xerostomia, SindromeBocaArdiente
 )
 
 @admin.register(DatosSocioDemograficos)
@@ -156,41 +155,17 @@ class XerostomiaAdmin(admin.ModelAdmin):
         return obj.user.codigo_identificativo
     user_codigo_identificativo.short_description = 'Código Identificativo del Usuario'
 
-@admin.register(Lengua)
-class LenguaAdmin(admin.ModelAdmin):
-    list_display = ['nombre']
-
-@admin.register(MucosaYugal)
-class MucosaYugalAdmin(admin.ModelAdmin):
-    list_display = ['nombre']
-
-@admin.register(Labios)
-class LabiosAdmin(admin.ModelAdmin):
-    list_display = ['nombre']
-
-@admin.register(Encia)
-class EnciaAdmin(admin.ModelAdmin):
-    list_display = ['nombre']
-
-@admin.register(Paladar)
-class PaladarAdmin(admin.ModelAdmin):
-    list_display = ['nombre']
-
-@admin.register(Extraoral)
-class ExtraoralAdmin(admin.ModelAdmin):
-    list_display = ['nombre']
 
 @admin.register(SindromeBocaArdiente)
 class SindromeBocaArdienteAdmin(admin.ModelAdmin):
     list_display = [
-        'user_codigo_identificativo', 'tiene_sintomas', 'intensidad_sintomatologia', 
-        'calidad_vida', 'alteraciones_gusto'
+        'user_codigo_identificativo', 'tiene_sintomas', 'intensidad_sintomatologia', 'alteraciones_gusto'
     ]
     search_fields = [
         'user__email', 'user__codigo_identificativo', 'sintomas', 
         'atribucion_sintomas', 'factor_desencadenante', 'tipo_alteracion_gusto'
     ]
-    list_filter = ['tiene_sintomas', 'alteraciones_gusto', 'calidad_vida']
+    list_filter = ['tiene_sintomas', 'alteraciones_gusto']
 
     def user_codigo_identificativo(self, obj):
         return obj.user.codigo_identificativo

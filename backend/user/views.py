@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import get_user_model, authenticate
 from .serializers import UserSerializer
 from django.db import IntegrityError
@@ -39,6 +40,21 @@ class LoginView(APIView):
             token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'token': token.key,
+                'user': {
+                    'email': user.email,
+                    'is_admin': user.is_staff  # Aquí se añade si el usuario es administrador
+                },
                 'message': 'Usuario logueado correctamente'
             })
         return Response({"error": "Credenciales inválidas."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    
+    
+class IsAdminView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        user = request.user
+        is_admin = user.is_staff
+        return Response({'is_admin': is_admin}, status=status.HTTP_200_OK)

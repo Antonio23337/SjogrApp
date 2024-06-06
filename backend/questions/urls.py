@@ -14,7 +14,7 @@ from .views import (
     HabitosNocivosListView, HabitosNocivosDetailView,
     ESSPRIListView, ESSPRIDetailView,
     XerostomiaListView, XerostomiaDetailView,
-    SindromeBocaArdienteListView, SindromeBocaArdienteDetailView
+    SindromeBocaArdienteListView, SindromeBocaArdienteDetailView, CheckFormSubmissionView
 )
 
 app_name = 'questions'
@@ -23,14 +23,15 @@ urlpatterns = [
     path('socio-demograficos/', DatosSocioDemograficosCreateView.as_view(), name='socio-demograficos'),
     path('sindrome/diagnostico/', DiagnosticoSjogrenCreateView.as_view(), name='diagnostico'),
     path('sindrome/poliautoinmunidad/', PoliautoinmunidadCreateView.as_view(), name='poliautoinmunidad'),
-    path('sindrome/antecedentes/', AntecedentesFamiliaresCreateView.as_view(), name='antecedentes'),
-    path('historia/antecedentes/', AntecedentesMedicosCreateView.as_view(), name='antecedentes'),
+    path('sindrome/antecedentes/', AntecedentesFamiliaresCreateView.as_view(), name='antecedentes_familiares'),
+    path('historia/antecedentes/', AntecedentesMedicosCreateView.as_view(), name='antecedentes_medicos'),
     path('historia/alergias/', AlergiasCreateView.as_view(), name='alergias'),
     path('historia/menstruacion/', EstadoMenstrualCreateView.as_view(), name='menstruacion'),
     path('historia/habitos/', HabitosNocivosCreateView.as_view(), name='habitos'),
     path('sintomas/esspri/', ESSPRICreateView.as_view(), name='esspri'),
     path('sintomas/xerostomia/', XerostomiaCreateView.as_view(), name='xerostomia'),
     path('sintomas/boca_ardiente/', SindromeBocaArdienteCreateView.as_view(), name='boca_ardiente'),
+    path('check-submission/', CheckFormSubmissionView.as_view(), name='check_submission'),
     
     path('admin/socio-demograficos/', DatosSocioDemograficosListView.as_view(), name='admin_socio_demograficos_list'),
     path('admin/socio-demograficos/<int:pk>/', DatosSocioDemograficosDetailView.as_view(), name='admin_socio_demograficos_detail'),
