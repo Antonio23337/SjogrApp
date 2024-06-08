@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, Alert, Dimensions, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { login } from '../api/api';
 
@@ -35,64 +35,76 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
-      <TextInput
-        label="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        style={styles.input}
-        mode="outlined"
-      />
-      <HelperText type="error" visible={!email && error}>
-        Correo electrónico es obligatorio.
-      </HelperText>
-      <TextInput
-        label="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-        mode="outlined"
-      />
-      <HelperText type="error" visible={!password && error}>
-        Contraseña es obligatoria.
-      </HelperText>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <Button mode="contained" onPress={handleLogin} style={styles.button}>
-        Iniciar Sesión
-      </Button>
-      <Button
-        mode="outlined"
-        onPress={() => navigation.navigate('Register')}
-        style={styles.button}
-      >
-        Registrarse
-      </Button>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView contentContainerStyle={styles.scrollView}>
+        <View style={styles.spacer} />
+        <Text style={styles.title}>Iniciar Sesión</Text>
+        <TextInput
+          label="Correo electrónico"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={styles.input}
+          mode="outlined"
+        />
+        <HelperText type="error" visible={!email && error}>
+          Correo electrónico es obligatorio.
+        </HelperText>
+        <TextInput
+          label="Contraseña"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          style={styles.input}
+          mode="outlined"
+        />
+        <HelperText type="error" visible={!password && error}>
+          Contraseña es obligatoria.
+        </HelperText>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <Button mode="contained" onPress={handleLogin} style={styles.button}>
+          Iniciar Sesión
+        </Button>
+        <Button
+          mode="outlined"
+          onPress={() => navigation.navigate('Register')}
+          style={styles.button}
+        >
+          Registrarse
+        </Button>
 
-      {/* Añadir las imágenes aquí */}
-      <Image 
-        source={image1} 
-        style={styles.image} 
-        resizeMode="contain" 
-      />
-      <Image 
-        source={image2} 
-        style={styles.image} 
-        resizeMode="contain" 
-      />
-    </View>
+        {/* Añadir las imágenes aquí */}
+        <Image 
+          source={image1} 
+          style={styles.image} 
+          resizeMode="contain" 
+        />
+        <Image 
+          source={image2} 
+          style={styles.image} 
+          resizeMode="contain" 
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
     justifyContent: 'center',
     padding: width * 0.05,
-    backgroundColor: '#f5f5f5',
+  },
+  spacer: {
+    height: height * 0.1, // Ajusta este valor para mover el texto hacia abajo
   },
   title: {
     fontSize: width * 0.08,
@@ -112,7 +124,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   image: {
-    width: width * 0.8,
+    width: width * 0.6,
     height: height * 0.2,
     alignSelf: 'center',
     marginTop: height * 0.02,
