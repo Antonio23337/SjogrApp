@@ -10,8 +10,7 @@ class UserManager(BaseUserManager):
             raise ValueError('El usuario debe tener un correo electrónico')
         email = self.normalize_email(email)
 
-        # Generar el código identificativo único antes de crear el usuario
-        for _ in range(10):  # Intentar hasta 10 veces
+        for _ in range(10):
             codigo_identificativo = self.generate_unique_code()
             if not User.objects.filter(codigo_identificativo=codigo_identificativo).exists():
                 break
@@ -22,7 +21,6 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
 
-        # Generar el token de autenticación para el usuario
         Token.objects.create(user=user)
 
         return user
@@ -54,7 +52,7 @@ class User(AbstractBaseUser):
 
     def save(self, *args, **kwargs):
         if not self.codigo_identificativo:
-            for _ in range(10):  # Intentar hasta 10 veces
+            for _ in range(10): 
                 self.codigo_identificativo = self.generate_unique_code()
                 if not User.objects.filter(codigo_identificativo=self.codigo_identificativo).exists():
                     break

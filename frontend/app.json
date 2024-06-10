@@ -4,10 +4,10 @@
     "slug": "SjogrApp",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/sintomas_orales-icon.png",
+    "icon": "./assets/sjogren.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/sintomas_orales-icon.png",
+      "image": "./assets/sjogren.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
