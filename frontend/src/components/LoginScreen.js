@@ -5,7 +5,7 @@ import { login } from '../api/api';
 
 const { width, height } = Dimensions.get('window');
 
-// Importar las imágenes locales
+
 import image1 from '../../assets/Us_logo.png';
 import image2 from '../../assets/facultad_odontologia.png';
 
@@ -78,7 +78,6 @@ const LoginScreen = ({ navigation }) => {
           Registrarse
         </Button>
 
-        {/* Añadir las imágenes aquí */}
         <Image 
           source={image1} 
           style={styles.image} 
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
     padding: width * 0.05,
   },
   spacer: {
-    height: height * 0.1, // Ajusta este valor para mover el texto hacia abajo
+    height: height * 0.1, 
   },
   title: {
     fontSize: width * 0.08,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, SafeAreaView, Dimensions } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { submitDiagnosticoSjogren } from '../../api/api';
@@ -14,19 +14,26 @@ const DiagnosticoSjogrenScreen = ({ navigation, route }) => {
   const [error, setError] = useState('');
 
   const validateFields = () => {
-    if (diagnosticoSjogren === '' || (diagnosticoSjogren === 'Sí' && (!anioDiagnostico || !medicacion))) {
-      setError('Todos los campos son obligatorios.');
+    if (diagnosticoSjogren === '') {
+      setError('La pregunta sobre el diagnóstico es obligatoria.');
       return false;
     }
 
-    if (medicacion.trim() === '') {
-      setError('Los campos no pueden contener solo espacios en blanco.');
-      return false;
-    }
+    if (diagnosticoSjogren === 'Sí') {
+      if (!anioDiagnostico) {
+        setError('El año de diagnóstico es obligatorio.');
+        return false;
+      }
 
-    if (medicacion.length > 255) {
-      setError('Los campos no pueden tener más de 255 caracteres.');
-      return false;
+      if (medicacion.trim() === '') {
+        setError('La medicación es obligatoria y no puede contener solo espacios en blanco.');
+        return false;
+      }
+
+      if (medicacion.length > 255) {
+        setError('La medicación no puede tener más de 255 caracteres.');
+        return false;
+      }
     }
 
     return true;

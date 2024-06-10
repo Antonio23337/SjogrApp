@@ -61,7 +61,6 @@ const SocioDemographicScreen = ({ route, navigation }) => {
     if (name === 'comunidad_autonoma') {
       setProvinces(provincesByCommunity[value] || []);
     }
-    // Clear error when the user starts typing
     if (name === 'fecha_nacimiento') {
       setError('');
     }
@@ -74,7 +73,6 @@ const SocioDemographicScreen = ({ route, navigation }) => {
       return false;
     }
 
-    // Validar la fecha de nacimiento
     const fechaNacimientoValida = moment(fecha_nacimiento, 'YYYY-MM-DD', true).isValid();
     const fechaNacimientoFutura = moment(fecha_nacimiento).isAfter(moment());
     const fechaNacimientoAntigua = moment(fecha_nacimiento).isBefore('1900-01-01');
@@ -98,7 +96,7 @@ const SocioDemographicScreen = ({ route, navigation }) => {
         {
           text: 'OK',
           onPress: () => {
-            navigation.navigate('Home', { token, refresh: true }); // Navegar con el parámetro refresh
+            navigation.navigate('Home', { token, refresh: true });
           }
         }
       ]);

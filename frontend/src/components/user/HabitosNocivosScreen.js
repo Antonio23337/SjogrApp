@@ -23,7 +23,7 @@ const HabitosNocivosScreen = ({ navigation, route }) => {
     setData(prevData => {
       const newData = { ...prevData, [name]: value };
 
-      // Clear dependent fields if the condition is not met
+      
       if (name === 'actualmente_fumas' && !value) {
         newData.cigarrillos_por_dia = '';
         newData.edad_inicio_fumar = '';

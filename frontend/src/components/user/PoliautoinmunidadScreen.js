@@ -150,7 +150,7 @@ const PoliautoinmunidadScreen = ({ navigation, route }) => {
                     onChangeText={(text) => handleChange('otroEnfermedad', text)}
                     style={styles.input}
                     mode="outlined"
-                    maxLength={255} // Limitar a 255 caracteres
+                    maxLength={255}
                   />
                   <HelperText type="error" visible={otroEnfermedad === '' && error}>
                     Este campo es obligatorio.
@@ -185,7 +185,7 @@ const PoliautoinmunidadScreen = ({ navigation, route }) => {
                 onChangeText={(text) => handleChange('medicacion', text)}
                 style={styles.input}
                 mode="outlined"
-                maxLength={255} // Limitar a 255 caracteres
+                maxLength={255}
               />
               <HelperText type="error" visible={medicacion === '' && error}>
                 La medicación es obligatoria.

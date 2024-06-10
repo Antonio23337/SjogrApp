@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, Dimensions } from 'react-native';
+import { View, StyleSheet, Alert, Dimensions, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { register } from '../api/api';
 
@@ -38,75 +38,83 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registrarse</Text>
-      <TextInput
-        label="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        style={styles.input}
-        mode="outlined"
-      />
-      <HelperText type="error" visible={!email && error}>
-        Correo electrónico es obligatorio.
-      </HelperText>
-      <TextInput
-        label="Confirmar correo electrónico"
-        value={confirmEmail}
-        onChangeText={setConfirmEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        style={styles.input}
-        mode="outlined"
-      />
-      <HelperText type="error" visible={!confirmEmail && error}>
-        Confirmar correo electrónico es obligatorio.
-      </HelperText>
-      <TextInput
-        label="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-        mode="outlined"
-      />
-      <HelperText type="error" visible={!password && error}>
-        Contraseña es obligatoria.
-      </HelperText>
-      <TextInput
-        label="Confirmar contraseña"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-        style={styles.input}
-        mode="outlined"
-      />
-      <HelperText type="error" visible={!confirmPassword && error}>
-        Confirmar contraseña es obligatorio.
-      </HelperText>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <Button mode="contained" onPress={handleRegister} style={styles.button}>
-        Registrarse
-      </Button>
-      <Button
-        mode="outlined"
-        onPress={() => navigation.navigate('Login')}
-        style={styles.button}
-      >
-        Volver al Inicio de Sesión
-      </Button>
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.title}>Registrarse</Text>
+        <TextInput
+          label="Correo electrónico"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={styles.input}
+          mode="outlined"
+        />
+        <HelperText type="error" visible={!email && error}>
+          Correo electrónico es obligatorio.
+        </HelperText>
+        <TextInput
+          label="Confirmar correo electrónico"
+          value={confirmEmail}
+          onChangeText={setConfirmEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={styles.input}
+          mode="outlined"
+        />
+        <HelperText type="error" visible={!confirmEmail && error}>
+          Confirmar correo electrónico es obligatorio.
+        </HelperText>
+        <TextInput
+          label="Contraseña"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          style={styles.input}
+          mode="outlined"
+        />
+        <HelperText type="error" visible={!password && error}>
+          Contraseña es obligatoria.
+        </HelperText>
+        <TextInput
+          label="Confirmar contraseña"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+          style={styles.input}
+          mode="outlined"
+        />
+        <HelperText type="error" visible={!confirmPassword && error}>
+          Confirmar contraseña es obligatorio.
+        </HelperText>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <Button mode="contained" onPress={handleRegister} style={styles.button}>
+          Registrarse
+        </Button>
+        <Button
+          mode="outlined"
+          onPress={() => navigation.navigate('Login')}
+          style={styles.button}
+        >
+          Volver al Inicio de Sesión
+        </Button>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     padding: width * 0.05,
-    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: width * 0.08,

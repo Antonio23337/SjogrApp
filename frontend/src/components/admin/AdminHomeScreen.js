@@ -90,7 +90,7 @@ const AdminHomeScreen = ({ navigation, route }) => {
       <Row>
         <Card onPress={() => navigateToSection('SocioDemographicList')}>
           <CardImage source={require('../../../assets/socio-demografico.png')} />
-          <CardLabel>Datos Socio-Demográficos</CardLabel>
+          <CardLabel>Datos Socio  Demográficos</CardLabel>
         </Card>
         <Card onPress={() => navigateToSection('AdminMedicalHistoryScreen')}>
           <CardImage source={require('../../../assets/historia-medica.png')} />
