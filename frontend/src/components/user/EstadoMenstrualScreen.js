@@ -25,7 +25,7 @@ const EstadoMenstrualScreen = ({ navigation, route }) => {
     setData(prevData => {
       const newData = { ...prevData, [name]: value };
 
-      // Clear dependent fields if the condition is not met
+      
       if (name === 'estado_menstrual') {
         if (value !== 'Postmenopausia') {
           newData.edad_ultima_menstruacion = '';
@@ -138,7 +138,7 @@ const EstadoMenstrualScreen = ({ navigation, route }) => {
               style={styles.input}
               keyboardType="numeric"
               mode="outlined"
-              maxLength={3} // Assuming age should be max 3 digits
+              maxLength={3}
             />
           </View>
 
@@ -214,7 +214,7 @@ const EstadoMenstrualScreen = ({ navigation, route }) => {
                   style={styles.input}
                   keyboardType="numeric"
                   mode="outlined"
-                  maxLength={3} // Assuming age should be max 3 digits
+                  maxLength={3}
                 />
                 <View style={styles.pickerContainer}>
                   <Picker

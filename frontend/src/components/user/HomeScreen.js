@@ -49,7 +49,7 @@ const CardImage = styled.Image`
 `;
 
 const CardLabel = styled.Text`
-  font-size: ${height * 0.025}px;
+  font-size: ${height * 0.025}px; /* Ajuste el tamaño de la fuente */
   text-align: center;
   color: #333;
 `;
@@ -109,13 +109,22 @@ const HomeScreen = ({ navigation, route }) => {
   );
 
   const navigateToSection = (section) => {
+    if (section !== 'socio_demografico' && !formSubmitted.socio_demografico) {
+      Alert.alert(
+        'Formulario Requerido',
+        'Debes completar el formulario de Datos Socio-Demográficos antes de acceder a otras secciones.',
+        [{ text: 'Aceptar' }]
+      );
+      return; 
+    }
+
     if (section === 'socio_demografico' && formSubmitted.socio_demografico) {
       Alert.alert(
         'Formulario ya enviado',
         'Ya has enviado este formulario y no puedes volver a acceder.',
         [{ text: 'Aceptar' }]
       );
-      return; // No navegar si el formulario ya ha sido enviado
+      return;
     }
 
     if (section === 'diagnostico_sjogren') {
@@ -137,7 +146,7 @@ const HomeScreen = ({ navigation, route }) => {
               style={{ position: 'absolute', top: 10, right: 10, width: 30, height: 30 }}
             />
           )}
-          <CardLabel>Datos Socio-Demográficos</CardLabel>
+          <CardLabel>Datos Socio  Demográficos</CardLabel>
         </Card>
         <Card onPress={() => navigateToSection('MedicalHistory')}>
           <CardImage source={require('../../../assets/historia-medica.png')} />

@@ -1,4 +1,4 @@
-const API_URL = 'http://192.168.18.4:8000/'; // Cambia esta URL por la URL de tu API
+const API_URL = 'https://antonio233.pythonanywhere.com/'; 
 
 export const login = async (email, password) => {
   try {

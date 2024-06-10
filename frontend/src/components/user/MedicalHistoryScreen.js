@@ -63,6 +63,7 @@ const MedicalHistoryScreen = ({ navigation, route }) => {
     alergias: false,
     estado_menstrual: false,
     habitos_nocivos: false,
+    genero: '',  // Añadir estado para el género
   });
 
   const checkFormSubmission = async () => {
@@ -130,16 +131,6 @@ const MedicalHistoryScreen = ({ navigation, route }) => {
         </Card>
       </Row>
       <Row>
-        <Card onPress={() => navigateToSection('estado_menstrual')}>
-          <CardImage source={require('../../../assets/estado-menstrual.png')} />
-          {formSubmitted.estado_menstrual && (
-            <Image
-              source={require('../../../assets/checkmark.png')}
-              style={{ position: 'absolute', top: 10, right: 10, width: 30, height: 30 }}
-            />
-          )}
-          <CardLabel>Estado Menstrual</CardLabel>
-        </Card>
         <Card onPress={() => navigateToSection('habitos_nocivos')}>
           <CardImage source={require('../../../assets/habitos-nocivos.png')} />
           {formSubmitted.habitos_nocivos && (
@@ -150,6 +141,18 @@ const MedicalHistoryScreen = ({ navigation, route }) => {
           )}
           <CardLabel>Hábitos Nocivos</CardLabel>
         </Card>
+        {formSubmitted.genero === 'Mujer' && (
+          <Card onPress={() => navigateToSection('estado_menstrual')}>
+            <CardImage source={require('../../../assets/estado-menstrual.png')} />
+            {formSubmitted.estado_menstrual && (
+              <Image
+                source={require('../../../assets/checkmark.png')}
+                style={{ position: 'absolute', top: 10, right: 10, width: 30, height: 30 }}
+              />
+            )}
+            <CardLabel>Estado Menstrual</CardLabel>
+          </Card>
+        )}
       </Row>
     </Container>
   );

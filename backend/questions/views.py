@@ -703,6 +703,8 @@ class CheckFormSubmissionView(APIView):
 
     def get(self, request):
         user = request.user
+        socio_demograficos = DatosSocioDemograficos.objects.filter(user=user).first()
+        genero = socio_demograficos.genero if socio_demograficos else None
         forms_status = {
             'socio_demografico': DatosSocioDemograficos.objects.filter(user=user).exists(),
             'diagnostico_sjogren': DiagnosticoSjogren.objects.filter(user=user).exists(),
@@ -715,6 +717,7 @@ class CheckFormSubmissionView(APIView):
             'esspri': ESSPRI.objects.filter(user=user).exists(),
             'xerostomia': Xerostomia.objects.filter(user=user).exists(),
             'sindrome_boca_ardiente': SindromeBocaArdiente.objects.filter(user=user).exists(),
+            'genero': genero,
         }
 
         return Response(forms_status, status=status.HTTP_200_OK)
