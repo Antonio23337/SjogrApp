@@ -20,8 +20,8 @@ class RegisterView(APIView):
                 user = serializer.save()
                 token, created = Token.objects.get_or_create(user=user)
                 user_data = serializer.data
-                user_data['token'] = token.key  # Añadir el token al response
-                user_data['codigo_identificativo'] = user.codigo_identificativo  # Añadir el código identificativo al response
+                user_data['token'] = token.key 
+                user_data['codigo_identificativo'] = user.codigo_identificativo
                 return Response(user_data, status=status.HTTP_201_CREATED)
             except IntegrityError:
                 return Response({"error": "Un usuario con este código identificativo ya existe. Intente nuevamente."}, status=status.HTTP_400_BAD_REQUEST)
@@ -42,7 +42,7 @@ class LoginView(APIView):
                 'token': token.key,
                 'user': {
                     'email': user.email,
-                    'is_admin': user.is_staff  # Aquí se añade si el usuario es administrador
+                    'is_admin': user.is_staff
                 },
                 'message': 'Usuario logueado correctamente'
             })
