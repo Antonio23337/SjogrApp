@@ -1,10 +1,37 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, SafeAreaView, Dimensions } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { TextInput, Button, Text } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { submitAntecedentesMedicos } from '../../api/api';
 
 const { height, width } = Dimensions.get('window');
+
+const formatFieldName = (field) => {
+  switch (field) {
+    case 'gastrointestinal':
+      return '¿Tiene antecedentes de enfermedades gastrointestinales?';
+    case 'renal':
+      return '¿Tiene antecedentes de enfermedades renales?';
+    case 'dermatologico':
+      return '¿Tiene antecedentes de enfermedades dermatológicas?';
+    case 'neurologico':
+      return '¿Tiene antecedentes de enfermedades neurológicas?';
+    case 'endocrino':
+      return '¿Tiene antecedentes de enfermedades endocrinas?';
+    case 'hematologico':
+      return '¿Tiene antecedentes de enfermedades hematológicas?';
+    case 'musculo_esqueletico':
+      return '¿Tiene antecedentes de enfermedades musculoesqueléticas?';
+    case 'cardiovascular':
+      return '¿Tiene antecedentes de enfermedades cardiovasculares?';
+    case 'pulmonar':
+      return '¿Tiene antecedentes de enfermedades pulmonares?';
+    case 'cognitivo':
+      return '¿Tiene antecedentes de enfermedades cognitivas?';
+    default:
+      return field.replace(/_/g, ' ');
+  }
+};
 
 const AntecedentesMedicosScreen = ({ navigation, route }) => {
   const { token } = route.params;
@@ -98,7 +125,7 @@ const AntecedentesMedicosScreen = ({ navigation, route }) => {
             if (!key.startsWith('medicacion')) {
               return (
                 <View key={key} style={styles.section}>
-                  <Text style={styles.question}>¿Tiene antecedentes {key.replace('_', ' ')}?</Text>
+                  <Text style={styles.question}>{formatFieldName(key)}</Text>
                   <View style={styles.pickerContainer}>
                     <Picker
                       selectedValue={data[key]}

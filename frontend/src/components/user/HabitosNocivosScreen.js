@@ -91,9 +91,9 @@ const HabitosNocivosScreen = ({ navigation, route }) => {
   const formatFieldName = (field) => {
     switch (field) {
       case 'actualmente_fumas':
-        return '¿Actualmente fumas?';
+        return '¿Actualmente fuma?';
       case 'has_fumado_antes':
-        return '¿Has fumado antes?';
+        return '¿Ha fumado antes?';
       default:
         return field.replace(/_/g, ' ');
     }
@@ -185,7 +185,7 @@ const HabitosNocivosScreen = ({ navigation, route }) => {
             {data.has_fumado_antes && (
               <View>
                 <TextInput
-                  label="Cuándo comenzaste"
+                  label="Razón por la que comenzó a fumar"
                   value={data.cuando_comenzaste}
                   onChangeText={(text) => handleChange('cuando_comenzaste', text)}
                   style={styles.input}
@@ -202,7 +202,7 @@ const HabitosNocivosScreen = ({ navigation, route }) => {
                   maxLength={3}
                 />
                 <TextInput
-                  label="Cuándo dejaste"
+                  label="Razón por la que dejó de fumar"
                   value={data.cuando_dejaste}
                   onChangeText={(text) => handleChange('cuando_dejaste', text)}
                   style={styles.input}
